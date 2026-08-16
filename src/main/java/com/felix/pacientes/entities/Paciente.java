@@ -114,11 +114,15 @@ public class Paciente {
                 numExpediente,
                 telefono,
                 direccion
-                );
+        );
 
         this.nombre = nombre;
         this.apellidoPaterno = apellidoPaterno;
         this.apellidoMaterno = apellidoMaterno;
+        this.edad = edad;
+        this.peso = peso;
+        this.estatura = estatura;
+        this.imc = imc;
         this.email = email;
         this.numExpediente = numExpediente;
         this.telefono = telefono;
