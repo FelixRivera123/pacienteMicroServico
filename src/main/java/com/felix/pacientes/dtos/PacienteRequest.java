@@ -41,7 +41,7 @@ public record PacienteRequest(
         String telefono,
 
         @NotBlank(message = "La direccion es requerida")
-        @Size(min = 1, max = 50, message = "La direccion debe tener entre 1 y 150 caracteres")
+        @Size(min = 1, max = 150, message = "La direccion debe tener entre 1 y 150 caracteres")
         String direccion
 ) {
 }

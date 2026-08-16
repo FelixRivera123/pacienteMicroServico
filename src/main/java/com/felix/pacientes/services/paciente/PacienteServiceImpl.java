@@ -3,6 +3,8 @@ package com.felix.pacientes.services.paciente;
 import com.felix.pacientes.dtos.PacienteRequest;
 import com.felix.pacientes.dtos.PacienteResponse;
 import com.felix.pacientes.entities.Paciente;
+import com.felix.pacientes.enums.EstadoRegistro;
+import com.felix.pacientes.exceptions.RecursoNoEncontradoException;
 import com.felix.pacientes.mappers.PacienteMapper;
 import com.felix.pacientes.repositories.PacienteRepository;
 import com.felix.pacientes.services.ServicesUtils;
@@ -27,8 +29,11 @@ public class PacienteServiceImpl implements PacienteService {
     public List<PacienteResponse> listar() {
         log.info("Listando todos los pacientes");
 
-        return pacienteRepository.findAll().stream()
-                .map(pacienteMapper::entidadAResponse).toList();
+        return pacienteRepository
+                .findAllByEstadoRegistro(EstadoRegistro.ACTIVO)
+                .stream()
+                .map(pacienteMapper::entidadAResponse)
+                .toList();
     }
 
     @Override
@@ -40,8 +45,26 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Override
     public PacienteResponse registrar(PacienteRequest request) {
+        Paciente paciente = pacienteMapper.requestAEntidad(request);
 
-        return null;
+        Double imc = calcularImc(
+                paciente.getPeso(),
+                paciente.getEstatura()
+        );
+
+        String expediente = generarNumeroExpediente(
+                paciente.getTelefono()
+        );
+
+        paciente.asignarDatosRegistro(
+                imc,
+                expediente,
+                EstadoRegistro.ACTIVO
+        );
+
+        pacienteRepository.save(paciente);
+
+        return pacienteMapper.entidadAResponse(paciente);
     }
 
     @Override
@@ -52,14 +75,40 @@ public class PacienteServiceImpl implements PacienteService {
     @Override
     public void eliminar(Long id) {
 
+        Paciente paciente = obtenerPaciente(id);
+        paciente.eliminar();
+        pacienteRepository.save(paciente);
     }
 
     private Paciente obtenerPaciente(Long id){
         return ServicesUtils.onbtenerEntidadOException(pacienteRepository, id, Paciente.class);
     }
 
+    private Paciente obtenerPacienteActivo(Long id){
+        return pacienteRepository
+                .findByIdAndEstadoRegistro(id, EstadoRegistro.ACTIVO)
+                .orElseThrow(() ->
+                        new RecursoNoEncontradoException("Paciente no encontrado"));
+    }
+
+    private Paciente obtenerPacienteSinValidarEstado(Long id){
+        return pacienteRepository
+                .findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Paciente no encontrado"));
+    }
+
     private Double calcularImc(Double peso, Double altura){
         return peso/(altura*altura);
+    }
+
+    private String generarNumeroExpediente(String telefono) {
+        StringBuilder numeroExpediente = new StringBuilder();
+
+        for (char numero : telefono.toCharArray()) {
+            numeroExpediente.append(numero).append("X");
+        }
+
+        return numeroExpediente.toString();
     }
 
 }

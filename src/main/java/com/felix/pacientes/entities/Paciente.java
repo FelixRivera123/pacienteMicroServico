@@ -97,6 +97,10 @@ public class Paciente {
             String nombre,
             String apellidoPaterno,
             String apellidoMaterno,
+            Short edad,
+            Double peso,
+            Double estatura,
+            Double imc,
             String email,
             String numExpediente,
             String telefono,
@@ -121,5 +125,17 @@ public class Paciente {
         this.direccion = direccion;
     }
 
+    public void asignarDatosRegistro(
+            Double imc,
+            String numExpediente,
+            EstadoRegistro estadoRegistro
+    ) {
+        this.imc = imc;
+        this.numExpediente = numExpediente;
+        this.estadoRegistro = estadoRegistro;
+    }
 
+    public void eliminar(){
+        this.estadoRegistro = EstadoRegistro.ELIMINADO;
+    }
 }
