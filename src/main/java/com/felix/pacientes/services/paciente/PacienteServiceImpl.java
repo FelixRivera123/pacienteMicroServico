@@ -89,7 +89,7 @@ public class PacienteServiceImpl implements PacienteService {
 
         Paciente paciente = obtenerPacienteActivo(id);
 
-        log.info("Registrando nuevo Paciente...");
+        log.info("Actualizando paciente con id: {}", id);
 
         validarDuplicadosActualizacion(
                 request.email(),
